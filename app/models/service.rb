@@ -70,10 +70,6 @@ class Service < ActiveRecord::Base
     query = params[:q]
 
     lat, lng = self.get_location(params, user)
-    puts "####################################"
-    puts lat
-    puts lng
-    puts "####################################"
     services = Service.all
     services = services.where(['lower(no_accent(services.name)) LIKE ? OR lower(no_accent(services.description)) LIKE ?', "%#{query.downcase.removeaccents}%", "%#{query.downcase.removeaccents}%"]) if query.present?
     
