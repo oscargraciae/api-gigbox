@@ -1,8 +1,6 @@
 class Api::V1::ServicesController < BaseController
   before_filter :auth, only: [:create, :update, :destroy, :my_services, :show_service, :published]
   before_filter :set_user, only: [:search, :sample, :favorite, :favorites]
-  before_action :verify_params, only: [:create, :update]
-
 
   MODULE_NAME = 'service_controller'
 
@@ -19,7 +17,7 @@ class Api::V1::ServicesController < BaseController
 
   def sample
     lat, lng = Service.get_location(params, @user)
-    services = Service.joins(:user).near([lat, lng], 40, order: false).where(isActive: true, published: true).order(rating_general: :desc, created_at: :desc).limit(16).includes(:sub_category, :user, :packages, :unit_type)
+    services = Service.joins(:user).near([lat, lng], 40, order: false).where(isActive: true, published: true).order(rating_general: :desc, created_at: :desc).limit(16).includes(:sub_category, :user, :packages)
 
     render json: services, status: :ok
   end
@@ -98,8 +96,9 @@ class Api::V1::ServicesController < BaseController
     begin
       ser = Service.new(service_params)
       ser.published = false
+      ser.user_id = @user.id
       if ser.save
-        user = User.find(service_params[:user_id])
+        user = User.find(@user.id)
         user.update_attribute(:is_supplier, true)
 
         render json: ser, status: 201
@@ -174,15 +173,8 @@ class Api::V1::ServicesController < BaseController
     @ser = Service.find(params[:id])
   end
 
-  private
-  def verify_params
-    if params[:unit_type_id] == 0
-      params[:unit_type_id] = nil
-    end
-  end
-
   # Parametros con permiso de entrada para registro de servicio
   def service_params
-    params.permit(:name, :description, :category_id, :country, :state, :locality, :price, :sub_category_id, :user_id, :lat, :lng, :cover, :unit_type_id, :unit_max, :packages)
+    params.permit(:name, :description, :category_id, :country, :state, :locality, :sub_category_id, :user_id, :lat, :lng, :cover, :packages)
   end
 end

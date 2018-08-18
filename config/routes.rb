@@ -22,19 +22,20 @@ Rails.application.routes.draw do
       end
       resources :services, only: [:index, :show, :create, :update, :destroy] do
         resources :evaluations, only: [:index, :create]
-        member do
-          get 'show_service'
-          get 'favorite'
-          put 'published'
-        end
-        collection do
-          get 'search'
-          get 'my_services'
-          get 'user_services'
-          get 'render_service'
-          get 'sample'
-          get 'favorites'
-        end
+          member do
+            get 'show_service'
+            get 'favorite'
+            put 'published'
+          end
+          collection do
+            get 'search'
+            get 'my_services'
+            get 'user_services'
+            get 'render_service'
+            get 'sample'
+            get 'favorites'
+          end
+        resources :comments, only: [:create, :index, :destroy]
       end
       resources :service_images, only: [:index, :create, :destroy]
       resources :locations, only: :index

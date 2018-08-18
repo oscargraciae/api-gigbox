@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170806215745) do
+ActiveRecord::Schema.define(version: 20171120225935) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -26,6 +26,19 @@ ActiveRecord::Schema.define(version: 20170806215745) do
   create_table "categories", force: :cascade do |t|
     t.string "name", null: false
   end
+
+  create_table "comments", force: :cascade do |t|
+    t.string   "body"
+    t.boolean  "active",     default: true
+    t.integer  "service_id"
+    t.integer  "user_id"
+    t.integer  "parent"
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+  end
+
+  add_index "comments", ["service_id"], name: "index_comments_on_service_id", using: :btree
+  add_index "comments", ["user_id"], name: "index_comments_on_user_id", using: :btree
 
   create_table "credit_cards", force: :cascade do |t|
     t.integer  "user_id"
@@ -240,8 +253,6 @@ ActiveRecord::Schema.define(version: 20170806215745) do
     t.string   "name"
     t.text     "description"
     t.integer  "category_id"
-    t.decimal  "price",              precision: 8, scale: 2
-    t.boolean  "is_fixed_price"
     t.datetime "created_at",                                                null: false
     t.datetime "updated_at",                                                null: false
     t.integer  "user_id"
@@ -254,13 +265,10 @@ ActiveRecord::Schema.define(version: 20170806215745) do
     t.decimal  "rating_general",     precision: 8, scale: 1, default: 0.0
     t.integer  "total_jobs",                                 default: 0
     t.boolean  "isActive",                                   default: true
-    t.integer  "unit_type_id"
-    t.integer  "unit_max"
     t.integer  "visits",                                     default: 0
     t.integer  "favorite_count",                             default: 0
   end
 
-  add_index "services", ["unit_type_id"], name: "index_services_on_unit_type_id", using: :btree
   add_index "services", ["user_id"], name: "index_services_on_user_id", using: :btree
 
   create_table "sub_categories", force: :cascade do |t|
@@ -337,6 +345,8 @@ ActiveRecord::Schema.define(version: 20170806215745) do
   add_index "users", ["location_id"], name: "index_users_on_location_id", using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
+  add_foreign_key "comments", "services"
+  add_foreign_key "comments", "users"
   add_foreign_key "credit_cards", "users"
   add_foreign_key "evaluations", "services"
   add_foreign_key "evaluations", "users"
@@ -358,7 +368,6 @@ ActiveRecord::Schema.define(version: 20170806215745) do
   add_foreign_key "request_services", "services"
   add_foreign_key "request_services", "users"
   add_foreign_key "service_images", "services"
-  add_foreign_key "services", "unit_types"
   add_foreign_key "services", "users"
   add_foreign_key "sub_categories", "categories"
   add_foreign_key "users", "locations"

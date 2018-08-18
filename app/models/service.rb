@@ -26,9 +26,7 @@
 #
 
 class Service < ActiveRecord::Base
-  validates :name, length: { maximum: 60 }
-  validates :description, length: { maximum: 1000 }
-
+  
   reverse_geocoded_by 'users.lat', 'users.lng'
 
   belongs_to :user
@@ -38,10 +36,14 @@ class Service < ActiveRecord::Base
   has_many :service_images
   has_many :packages
   has_many :favorites
+  has_many :comments
+  
+  validates :name, presence: true, length: { maximum: 60 }
+  validates :description, length: { maximum: 1000 }
 
   do_not_validate_attachment_file_type :cover
   has_attached_file   :cover,
-                      styles: { small: ['128x128!', :jpg], meddium: ['300x300!', :jpg], thumb: ['268x134#', :jpg] },
+                      styles: { small: ['128x128!', :jpg], meddium: ['750x422!', :jpg], thumb: ['750x422#', :jpg] },
                       default_style: :meddium,
                       storage: :s3,
                       url: ':s3_domain_url',
